@@ -21,7 +21,7 @@ import zipfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NAME = "ip-motion-characters"
-INCLUDE = ["SKILL.md", "CHANGELOG.md", "requirements.txt", "preview.html", "render.html",
+INCLUDE = ["SKILL.md", "CHANGELOG.md", "requirements.txt", "preview.html", "render.html", "play.html",
            "references", "engine", "characters", "cues", "scripts", "docs"]
 SKIP_DIRS = {"__pycache__"}
 
@@ -64,6 +64,7 @@ README = """# IP Motion Characters · 会动的 IP 角色
 <p>
 <img src="docs/scene.gif" width="320" alt="走进来、跳舞、dab、走出去">
 <img src="docs/faint.gif" width="320" alt="晕倒：果冻落地、星星散落、眉毛撞歪">
+<img src="docs/fever.gif" width="320" alt="狂点加速到 FEVER">
 </p>
 
 ![动作合集](docs/moves.gif)
@@ -72,7 +73,9 @@ README = """# IP Motion Characters · 会动的 IP 角色
 
 ## 它能做什么
 
-- **33 个动作开箱即用**：idle、跳跃、欢呼、难过、思考、说话、惊吓、看手机、走路、走过画面、派对舞、甩胯舞、机器人舞、太空步、dab、叉腰、比耶、比心、晕倒……
+- **39 个动作开箱即用**：idle、跳跃、欢呼、难过、思考、说话、惊吓、看手机、走路、走过画面、派对舞、甩胯舞、机器人舞、太空步、dab、叉腰、比耶、比心、晕倒、点击反应、邀请点击、FEVER……
+- **游戏手感（点击 / 放置类手游）**：一次点击多层反馈（形变 + 飘字 + 金币 + 火花 + 冲击环），狂点加速到 1.8×，25 连击进 FEVER；粒子特效层（金币、星星、爱心、彩纸、光芒）。
+- **点击试玩页 `play.html`**：真的能点——金币飞向计数器、连击条、FEVER 模式，10 个角色可切换。
 - **性格决定节奏**：每个角色一份「运动性格档案」（体重 / 能量 / 稳定性 / 风格）。同一个动作模板，年轻人蹦着走，老人慢慢挪，骗子蹑手蹑脚。
 - **冲击有连锁反应**：撞击定格、果冻回弹、头晚一拍、松脱物飞散、表情撞歪、扬尘、画面震动。
 - **自动次级运动**：头发、领带、包的弹簧；前臂惯性；挂件保持下垂；身体与头的果冻层。
@@ -117,6 +120,7 @@ Claude 会按 `SKILL.md` 的流程走：角色卡 → 概念图（**关口 1：�
 
 ```bash
 python -m http.server 8765                         # 打开 http://localhost:8765/preview.html 交互预览
+                                                   # 或 http://localhost:8765/play.html 点击试玩
 python scripts/lint.py                             # 硬规则检查
 python scripts/render.py --char young --motion all # 渲染 → out/young/
 python scripts/review.py                           # 总览页 out/index.html
@@ -127,7 +131,7 @@ python scripts/review.py                           # 总览页 out/index.html
 ```
 SKILL.md          流程、确认关口、硬规则（Claude 读这个）
 references/       造型规范、部件卡、运动性格档案、曲线与冲击 token、状态名、口型、质检清单
-engine/           ipm.js 引擎 · motions.js 动作模板 · lint.js
+engine/           ipm.js 引擎 · motions.js 动作模板 · fx.js 粒子特效 · lint.js
 characters/       两套示例角色（SVG 部件 + 性格档案）；_zoo_build.py 从共享部件生成动物园系列
 scripts/          render · lint · regress · silhouette · keyframes · review · showcase · package
 CHANGELOG.md      每条规则从哪个问题来、怎么验证

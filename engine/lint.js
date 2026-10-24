@@ -13,6 +13,7 @@
       const names = ['idle', 'idle@1', 'idle@2', 'happy_jump', 'cheer', 'sad', 'think', 'talk', 'shock', 'phone_look',
         'walk', 'walk_across', 'walk_across@l', 'dance', 'floss', 'dab', 'hero',
         'robot', 'moonwalk', 'moonwalk@r', 'peace', 'heart', 'faint',
+        'tap@1', 'tap@2', 'tap@3', 'tap@4', 'beckon', 'fever',
         ...(def.extras || []), ...Object.keys(IPM.cues).map((c) => 'speak@' + c), 'pose_test'];
       const idle = rig.motion('idle');
       const at = (m, part, prop, t) => {

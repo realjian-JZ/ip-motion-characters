@@ -154,6 +154,9 @@ def build_docs(chars):
     if scene:
         ffmpeg("-i", os.path.relpath(scene[0], ROOT), "-filter_complex",
                "fps=15,scale=320:-1:flags=lanczos,split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4", "docs/scene.gif")
+    if os.path.exists(os.path.join(OUT, "young", "fever", "fever.mp4")):
+        ffmpeg("-i", "out/young/fever/fever.mp4", "-filter_complex",
+               "fps=12,scale=280:-1:flags=lanczos,split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4", "docs/fever.gif")
     ffmpeg("-i", "out/young/faint/faint.mp4", "-filter_complex",
            "fps=15,scale=320:-1:flags=lanczos,split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4", "docs/faint.gif")
     print("docs/: lineup.png moves.gif scene.gif faint.gif")

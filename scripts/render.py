@@ -39,8 +39,8 @@ CHROME_PATHS = [
 ]
 SHOWREEL = ["idle", "happy_jump", "cheer", "sad", "think", "talk", "shock", "phone_look",
             "walk", "walk_across", "dance", "floss", "dab", "hero",
-            "robot", "moonwalk", "peace", "heart", "faint"]
-LOOPS = {"idle", "talk", "walk", "dance", "floss", "robot", "sneaky"}  # for --reel-only (a full render asks the page)
+            "robot", "moonwalk", "peace", "heart", "faint", "beckon", "fever"]
+LOOPS = {"idle", "talk", "walk", "dance", "floss", "robot", "sneaky", "beckon"}  # for --reel-only (a full render asks the page)
 
 
 def serve(root):
@@ -181,7 +181,7 @@ async def open_page(page="render.html"):
 async def render(args):
     async with open_page() as cdp:
         extras = await cdp.js(f"__extras({json.dumps(args.char)})")
-        motions = SHOWREEL + extras + ["idle@1", "idle@2", "pose_test"] if args.motion == "all" else args.motion.split(",")
+        motions = SHOWREEL + extras + ["idle@1", "idle@2", "tap@1", "tap@2", "tap@3", "tap@4", "pose_test"] if args.motion == "all" else args.motion.split(",")
         reel = []
         for name in motions:
             info = await cdp.js(f"__load({json.dumps(args.char)}, {json.dumps(name)})")

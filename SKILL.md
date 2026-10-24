@@ -37,6 +37,7 @@ description: 制作「会动的 IP 角色」系列（灵动、Q 弹、有冲击�
 
 - 禁止线性插值。例外只有两个：root.x 的匀速位移（走路、太空步）和 `fx_*` 特效的匀速旋转。上升用 `out`、下落用 `in`——重力感全靠这一条。
 - 每个动作 = 预备 → 主动作 → 跟随 → 回稳。离地前必须蓄力，落地必须挤压；预备时长随风格变（`antic`）。
+  **例外：被点击的反应没有预备**——第 0 帧就是最大形变，任何一帧都能被下一次点击打断（见 game-juice）。
 - 跟随：头、手臂比身体晚 `D.lag`（2–4 帧）；头发、领带、包交给弹簧；前臂惯性由引擎自动加。
 - 挤压拉伸用 `ss`（面积守恒），pivot 在脚底。
 - **一起动的，不一定画在同一层**：按遮挡关系分层（见 part-card）。
@@ -47,6 +48,7 @@ description: 制作「会动的 IP 角色」系列（灵动、Q 弹、有冲击�
 - 同一动作 5 个角色不能同拍（剪影测试 t_pk 要拉开）；idle 必须带性格层。
 - 撞击是一串连锁反应：撞击定格 2 帧 → 果冻回弹（逐次减半）→ 部位错拍（头晚一拍）→ 松脱物飞散 → 表情撞歪 → 扬尘；最重的才加画面震动（见 motion-tokens「冲击与 Q 弹」）。
 - 倒地 / 躺下时，压在下面的手脚只能往上弹，任何部件不能穿进地面；影子跟着铺开。
+- 互动反馈要多层同时发生（形变 + 数字 + 奖励物 + 火花 + 冲击环 + 画面缩放），并随连击升级；同一反应不连续重复（见 references/game-juice.md）。
 
 ## 文件
 
@@ -61,12 +63,15 @@ references/
   state-machine.md           统一状态名
   lipsync.md                 Rhubarb 口型映射、时序规则、speak@ 用法
   qa-checklist.md            质检清单
+  game-juice.md              点击 / 放置类游戏手感：即时反馈、多层叠加、变化、随连击升级、FEVER
 engine/ipm.js                引擎：部件 + 关键帧 + 弹簧 + 自动层，seek(t) 确定性
 engine/motions.js            参数化动作模板
+engine/fx.js                 粒子特效层：金币 / 星星 / 爱心 / 火花 / 彩纸 / 冲击环 / 飘字 / 速度线 / 光芒（确定性）
 characters/index.js          角色清单（唯一需要登记新角色的地方）
 characters/<id>/             character.svg + character.js
 cues/*.json → cues/cues.js   口型数据（scripts/cues2js.py 生成）
 preview.html                 交互预览（慢放、拖时间轴、看 pivot）
+play.html                    点击试玩：点角色、狂点加速、连击 25 进 FEVER
 render.html                  无头渲染页
 scripts/render.py            Chrome 无头逐帧渲染 → mp4 / gif / sheet / reel
 scripts/review.py            生成 out/index.html 总览
@@ -95,6 +100,9 @@ requirements.txt             Python 依赖（websockets、Pillow）
 | `speak@<cue>` | 由 Rhubarb 口型数据驱动的说话 |
 | `sneaky`（骗子）· `yawn`（上班族）· `alert`（银行职员） | 角色专属，登记在 `extras` |
 | `seq@a+b+c` | 串联成一条片子：`seq@walk_across+dance_x2+dab+walk_across@l`；循环动作用 `_xN` 重复；接缝自动过渡 0.15–0.4s；位置自动衔接（在走到的地方接着演） |
+| `tap@1..4` | 点击反应：压扁 / 扭动 / 蹦一下 / 咯咯笑，自带金币、飘字、火花；`tap@Nq` 不带特效（试玩页自己在指针处发） |
+| `beckon` | 邀请点击：空闲时朝屏幕弹两下、眨眼、闪一下 |
+| `fever` | 6 秒连点演示：点击越来越快、播放加速、特效逐层升级，最后 FEVER（光芒 + 彩纸 + 缩放冲击 + 欢呼） |
 | `pose_test` | 质检用：极限姿势 |
 
 ## 运行

@@ -429,7 +429,8 @@
 
   // ---------- shock: flinch (squash, arms in) → pop (stretch, arms fly out, eyes wide, hair spikes) → frozen tremble → recover ----------
   M.shock = (D, def) => {
-    const hair = (def && def.hair) || 'hair_tuft'; // the part that stands up on end
+    // the part that stands up on end; def.hair = null → none (helmet, bald)
+    const hair = def && 'hair' in def ? def.hair : 'hair_tuft';
     const T = (x) => x * D.tempo, L = D.lag, A = Math.min(D.amp, 1.1);
     const flinch = T(0.12), pop = T(0.28), freeze = T(0.95), back = T(1.45);
     const hop = D.tiptoe ? 6 : D.jumpH * 0.22;
@@ -460,7 +461,7 @@
         eyes: { sy: [[0, 1], [flinch, 0.55, 'snap'], [pop, 1.35, D.settle], [freeze, 1.25, 'inout'], [back, 1]], sx: [[0, 1], [pop, 1.12, D.settle], [freeze, 1.08], [back, 1]] },
         brow_l: { y: brow },
         brow_r: { y: brow },
-        [hair]: { r: [[0, 0], [flinch, 0, 'snap'], [pop, -22, D.settle], [freeze, -15, 'inout'], [back, 0]] },
+        ...(hair ? { [hair]: { r: [[0, 0], [flinch, 0, 'snap'], [pop, -22, D.settle], [freeze, -15, 'inout'], [back, 0]] } } : {}),
       },
       swaps: { mouth: [[0, 'smile'], [flinch, 'flat'], [pop, 'o'], [T(0.5), 'open'], [freeze, 'flat'], [back, 'smile']] },
     };
@@ -838,7 +839,7 @@
 
   // ---------- dab: dip → snap into the dab (face in one elbow, other arm straight up-out) → hold → release ----------
   M.dab = (D, def) => {
-    const T = (x) => x * D.tempo, L = D.lag, hair = (def && def.hair) || 'hair_tuft';
+    const T = (x) => x * D.tempo, L = D.lag, hair = def && 'hair' in def ? def.hair : 'hair_tuft';
     const dip = T(0.15), hit = T(0.28), hold = T(1.1), back = T(1.55);
     const out = -Math.min(D.armMax, 125);
     return {
@@ -854,7 +855,7 @@
         fore_l: { r: [[0, 0, 'snap'], [dip + L, 0, 'snap'], [hit + L, -60, D.settle], [hold, -60, D.main], [back + L, 0, D.settle]] },
         head: { r: [[0, 0], [dip, 0, 'snap'], [hit + L, -10, D.settle], [hold, -10, D.main], [back, 0]], y: [[0, 0], [hit + L, 8, D.settle], [hold, 8, D.main], [back, 0]] },
         eyes: { sy: [[0, 1], [hit, 1, 'snap'], [hit + 0.06, 0.1, 'hold'], [hold, 0.1, 'snap'], [hold + 0.1, 1]] },
-        [hair]: { r: [[0, 0], [hit, 0, 'snap'], [hit + 0.1, 12, D.settle], [hold, 0]] },
+        ...(hair ? { [hair]: { r: [[0, 0], [hit, 0, 'snap'], [hit + 0.1, 12, D.settle], [hold, 0]] } } : {}),
       },
       swaps: { mouth: [[0, 'smile'], [hit, 'grin'], [hold, 'smile']] },
     };
@@ -1190,6 +1191,143 @@
       swaps: { mouth: [[0, 'smile'], [0.6, 'grin'], [1.2, 'o'], [1.8, 'wide'], [2.4, 'sad'], [3.0, 'open'], [3.6, 'u']] },
     };
   };
+
+  // =====================================================================================================
+  // Game juice (references/game-juice.md): tap reactions, invitation to tap, a tap-to-FEVER crescendo
+  // =====================================================================================================
+  // every prop any tap variant touches; a tap that doesn't use one eases it back to neutral
+  const TAP_PROPS = [['body', 'ss', 1], ['body', 'r', 0], ['head', 'y', 0], ['head', 'r', 0], ['eyes', 'sy', 1],
+    ['root', 'y', 0], ['arm_l', 'r', 0], ['arm_r', 'r', 0]];
+
+  // one tap reaction starting at t0. s = intensity (1..1.6), sp = speed (1..1.8).
+  // No anticipation: frame 0 is already the extreme pose; any frame can be interrupted by the next tap.
+  function tapKeys(variant, t0, s, sp) {
+    const T = (dt) => +(t0 + dt / sp).toFixed(4);
+    const tr = {}, mouth = [];
+    const put = (part, prop, keys) => { (tr[part] = tr[part] || {})[prop] = keys; };
+    if (variant === 1) { // squish: flattened, eyes squeezed, pops back
+      put('body', 'ss', [[T(0), 1, 'snap'], [T(0.001), 1 - 0.13 * s, 'out'], [T(0.12), 1 + 0.06 * s, 'inout'], [T(0.24), 0.98, 'inout'], [T(0.34), 1]]);
+      put('head', 'y', [[T(0), 0, 'snap'], [T(0.001), 8 * s, 'out'], [T(0.15), -4, 'inout'], [T(0.3), 0]]);
+      put('eyes', 'sy', [[T(0), 1, 'snap'], [T(0.001), 0.15, 'hold'], [T(0.09), 0.15, 'out'], [T(0.2), 1]]);
+      mouth.push([T(0), 'o'], [T(0.12), 'grin']);
+    } else if (variant === 2) { // wobble: body twists side to side, arms fling out
+      put('body', 'r', [[T(0), 0, 'snap'], [T(0.001), -11 * s, 'out'], [T(0.12), 8 * s, 'inout'], [T(0.22), -4, 'inout'], [T(0.34), 0]]);
+      put('arm_l', 'r', [[T(0), 0, 'snap'], [T(0.001), 45 * s, 'out'], [T(0.32), 0]]);
+      put('arm_r', 'r', [[T(0), 0, 'snap'], [T(0.001), -45 * s, 'out'], [T(0.32), 0]]);
+      put('eyes', 'sy', [[T(0), 1, 'snap'], [T(0.001), 0.6, 'out'], [T(0.3), 1]]);
+      mouth.push([T(0), 'grin']);
+    } else if (variant === 3) { // boing: a little hop
+      put('root', 'y', [[T(0), 0, 'out'], [T(0.13), -38 * s, 'in'], [T(0.26), 0]]);
+      put('body', 'ss', [[T(0), 1, 'snap'], [T(0.001), 0.88, 'out'], [T(0.06), 1 + 0.08 * s, 'out'], [T(0.13), 1, 'in'], [T(0.26), 0.92, 'out'], [T(0.38), 1]]);
+      put('arm_l', 'r', [[T(0), 0], [T(0.06), 60 * s, 'out'], [T(0.26), 20, 'out'], [T(0.4), 0]]);
+      put('arm_r', 'r', [[T(0), 0], [T(0.06), -60 * s, 'out'], [T(0.26), -20, 'out'], [T(0.4), 0]]);
+      mouth.push([T(0), 'grin']);
+    } else { // giggle: fast head shake, squinting, mouth flickers
+      const shake = [[T(0), 0, 'snap']];
+      for (let i = 0; i < 6; i++) shake.push([T(0.025 + i * 0.05), (i % 2 ? -6 : 6) * s, 'inout']);
+      shake.push([T(0.34), 0]);
+      put('head', 'r', shake);
+      put('body', 'ss', [[T(0), 1, 'snap'], [T(0.001), 0.95, 'out'], [T(0.3), 1]]);
+      put('eyes', 'sy', [[T(0), 1, 'snap'], [T(0.001), 0.5, 'hold'], [T(0.28), 0.5, 'out'], [T(0.36), 1]]);
+      for (let i = 0; i < 5; i++) mouth.push([T(i * 0.06), i % 2 ? 'wide' : 'grin']);
+    }
+    for (const [part, prop, v] of TAP_PROPS) if (!(tr[part] && tr[part][prop])) put(part, prop, [[T(0.08), v, 'snap']]);
+    return { tr, mouth };
+  }
+
+  // the layered feedback of one tap; k = combo level 0..1
+  function tapFx(t, k, value, seed, x = 0) {
+    const ev = [
+      { t, type: 'coin', n: 3 + Math.round(7 * k), x, y: -200, dir: -90, spread: 150, speed: [280, 470], life: 0.85, seed },
+      { t, type: 'spark', n: 8, x, y: -220, dir: 0, spread: 360, speed: [300, 520], gravity: 0, life: 0.25, seed: seed + 1, color: '#FFE38A' },
+      // numbers pop above the head, spread ±80px so fast taps don't stack on one spot
+      { t, type: 'text', x: x + ((seed * 37) % 160) - 80, y: -390, label: '+' + value, size: 1 + 0.6 * k, color: k >= 0.99 ? '#FFB020' : '#FF8A3D', life: 0.75, seed: seed + 2 },
+    ];
+    if (k > 0.25) ev.push({ t, type: 'ring', x, y: -200, life: 0.3, size: 1 + 0.6 * k, seed: seed + 3 });
+    if (k > 0.4) ev.push({ t, type: 'star', n: 2 + Math.round(3 * k), x, y: -260, dir: -90, spread: 200, speed: [240, 400], life: 0.8, seed: seed + 4 });
+    if (k > 0.6) ev.push({ t, type: 'heart', n: 2, x, y: -260, dir: -90, spread: 160, speed: [200, 320], gravity: 500, life: 0.9, seed: seed + 5 });
+    if (k > 0.6) ev.push({ t, type: 'lines', n: 10, x, y: -200, dir: 0, spread: 360, life: 0.3, seed: seed + 6 });
+    return ev;
+  }
+  IPM.juice = { tapKeys, tapFx, TAP_PROPS };
+
+  const mergeTap = (m, r) => {
+    for (const part in r.tr) for (const prop in r.tr[part]) addKeys(m, part, prop, r.tr[part][prop]);
+    m.swaps.mouth.push(...r.mouth);
+  };
+
+  // ---------- tap@1..4: one tap reaction with its full feedback stack ----------
+  M.tap = (D, def, arg) => {
+    // tap@2 → variant 2 with its own feedback; tap@2q → quiet (the playground spawns feedback at the pointer itself)
+    const v = (((parseInt(arg, 10) || 1) - 1) % 4) + 1, t0 = 0.05, quiet = /q/.test(arg || '');
+    const m = { duration: 0.55, loop: false, tracks: {}, swaps: { mouth: [[0, 'smile']] }, fx: quiet ? [] : tapFx(t0, 0.2, 1, 11 * v) };
+    for (const [part, prop, val] of TAP_PROPS) addKeys(m, part, prop, [[0, val]]);
+    mergeTap(m, tapKeys(v, t0, 1.1, 1));
+    m.swaps.mouth.push([0.45, 'smile']);
+    return m;
+  };
+  M.tap.burst = true;
+
+  // ---------- beckon: idle, then two little bounces toward the viewer, a wink and a twinkle — "tap me!" ----------
+  M.beckon = (D, def) => {
+    const m = M.idle(D, def);
+    const t = 2.1;
+    m.tracks.root = Object.assign({}, m.tracks.root, { y: [[0, 0], [t, 0, 'out'], [t + 0.1, -10, 'in'], [t + 0.2, 0, 'out'], [t + 0.3, -8, 'in'], [t + 0.4, 0], [4.8, 0]] });
+    m.tracks.body.ss = [[0, 1, 'inout'], [t, 1, 'snap'], [t + 0.04, 0.94, 'out'], [t + 0.1, 1.04, 'in'], [t + 0.2, 0.95, 'out'], [t + 0.3, 1.03, 'in'], [t + 0.4, 0.97, D.settle], [t + 0.6, 1], [4.8, 1]];
+    m.tracks.head.r = [[0, 0], [t, 0, 'snap'], [t + 0.15, 6, D.settle], [t + 0.9, 6, 'inout'], [t + 1.2, 0], [4.8, 0]];
+    m.tracks.eyes.sy = [[0, 1], [t + 0.5, 1, 'in'], [t + 0.56, 0.1, 'hold'], [t + 0.75, 0.1, 'out'], [t + 0.85, 1], [4.8, 1]];
+    m.fx = [{ t: t + 0.45, type: 'star', x: 82, y: -330, speed: [0, 0], gravity: 0, spread: 0, life: 0.5, size: 1.3, seed: 5 },
+      { t: t + 0.45, type: 'spark', n: 6, x: 82, y: -330, dir: 0, spread: 360, speed: [120, 200], gravity: 0, life: 0.3, seed: 6 }];
+    m.swaps = { mouth: [[0, 'smile'], [t, 'grin'], [t + 1.0, 'smile']] };
+    return m;
+  };
+
+  // ---------- fever: rapid tapping that speeds up — combo grows, playback accelerates, feedback escalates — FEVER! ----------
+  M.fever = (D, def) => {
+    const m = { duration: 0, loop: false, tracks: {}, swaps: { mouth: [[0, 'smile']] }, fx: [] };
+    for (const [part, prop, val] of TAP_PROPS) addKeys(m, part, prop, [[0, val]]);
+    // tap times: 0.5s apart at first, 10% faster every tap, down to 0.11s
+    const taps = [];
+    for (let t = 0.3, dt = 0.5; taps.length < 26; t += dt, dt = Math.max(0.11, dt * 0.9)) taps.push(t);
+    const r = rand(17);
+    let last = 0;
+    taps.forEach((t0, i) => {
+      const k = Math.min(1, i / 25), sp = 1 + 0.8 * k, s = 1 + 0.6 * k;
+      let v;
+      do v = 1 + Math.floor(r() * 4); while (v === last);
+      last = v;
+      // interrupted by the next tap: drop keys at or after it
+      const next = taps[i + 1] ?? Infinity, rt = tapKeys(v, t0, s, sp);
+      for (const part in rt.tr) for (const prop in rt.tr[part]) rt.tr[part][prop] = rt.tr[part][prop].filter((key) => key[0] < next);
+      rt.mouth = rt.mouth.filter((key) => key[0] < next);
+      mergeTap(m, rt);
+      const value = k < 0.2 ? 1 : k < 0.5 ? 2 : k < 0.85 ? 5 : 10;
+      // the last tap leaves the stage to the FEVER title: no number of its own
+      m.fx.push(...tapFx(t0, k, value, 100 + i * 9).filter((e) => !(i === taps.length - 1 && e.type === 'text')));
+      addKeys(m, 'stage', 'sx', [[t0, 1, 'snap'], [t0 + 0.001, 1 + 0.03 * s, 'out'], [t0 + 0.12, 1]]);
+      addKeys(m, 'stage', 'sy', [[t0, 1, 'snap'], [t0 + 0.001, 1 + 0.03 * s, 'out'], [t0 + 0.12, 1]]);
+    });
+    // FEVER: rays behind, confetti rain, big title, zoom punch, shake — and the character celebrates
+    const tf = taps[taps.length - 1] + 0.12, A = Math.min(D.armMax, 125);
+    m.fx.push({ t: tf, type: 'rays', x: 0, y: -220, speed: [0, 0], gravity: 0, life: 2.6, size: 1.2, seed: 901 },
+      { t: tf, type: 'confetti', n: 70, x: 0, y: -620, dir: 90, spread: 70, speed: [60, 260], gravity: 420, life: 2.4, seed: 902, stagger: 0.012 },
+      { t: tf, type: 'text', x: 0, y: -450, label: 'FEVER!', size: 1.9, color: '#FFB020', life: 1.4, seed: 903 },
+      { t: tf, type: 'ring', x: 0, y: -200, life: 0.45, size: 2.4, seed: 904, color: '#FFD84D' });
+    addKeys(m, 'stage', 'sx', [[tf, 1, 'snap'], [tf + 0.001, 1.08, 'out'], [tf + 0.3, 1]]);
+    addKeys(m, 'stage', 'sy', [[tf, 1, 'snap'], [tf + 0.001, 1.08, 'out'], [tf + 0.3, 1]]);
+    addShake(m, tf, 5);
+    const cel = [['root', 'y', [[tf, 0, 'out'], [tf + 0.15, -46, 'in'], [tf + 0.3, 0, 'out'], [tf + 0.45, -30, 'in'], [tf + 0.6, 0]]],
+      ['body', 'ss', [[tf, 1, 'snap'], [tf + 0.001, 0.86, 'out'], [tf + 0.08, 1.1, 'out'], [tf + 0.15, 1, 'in'], [tf + 0.3, 0.9, 'out'], [tf + 0.38, 1.06, 'in'], [tf + 0.45, 1, 'in'], [tf + 0.6, 0.92, D.settle], [tf + 0.9, 1]]],
+      ['arm_l', 'r', [[tf, 0, 'snap'], [tf + 0.12, A, D.settle], [tf + 1.6, A - 6, D.main], [tf + 2.0, 0, D.settle]]],
+      ['arm_r', 'r', [[tf, 0, 'snap'], [tf + 0.12, -A, D.settle], [tf + 1.6, -A + 6, D.main], [tf + 2.0, 0, D.settle]]],
+      ['eyes', 'sy', [[tf, 1, 'snap'], [tf + 0.08, 0.5, 'out'], [tf + 1.8, 0.5, 'out'], [tf + 2.0, 1]]],
+      ['head', 'r', [[tf, 0], [tf + 0.4, -5, 'inout'], [tf + 0.8, 5, 'inout'], [tf + 1.2, -4, 'inout'], [tf + 1.6, 0]]]];
+    for (const [part, prop, keys] of cel) addKeys(m, part, prop, keys);
+    m.swaps.mouth.push([tf, 'grin'], [tf + 2.0, 'smile']);
+    m.duration = tf + 2.4;
+    return m;
+  };
+  M.fever.burst = true;
 
   // ---------- impact pass: dust under every landing (bigger for heavier characters) ----------
   const withImpacts = (name, events) => {

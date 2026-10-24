@@ -173,6 +173,8 @@
         this.springs.push({ part: 'body', prop: 'ss', src: [{ part: 'root', prop: 'y' }], k: 380, c: 7.5, gain: -0.0022, max: 0.06 });
         if (this.parts.head) this.springs.push({ part: 'head', prop: 'ss', src: [{ part: 'root', prop: 'y' }], k: 300, c: 6, gain: -0.0022, max: 0.06 });
       }
+      const stage = svg.querySelector('[data-part="stage"]');
+      this.fx = IPM.FX && stage ? new IPM.FX(stage) : null;
     }
 
     motion(name) {
@@ -281,9 +283,15 @@
       }
     }
 
-    pose(name, t) {
+    pose(name, t, tLive) {
       const m = this.motion(name);
       this.apply(this.sample(m, t));
+      // particle FX: motion events follow the motion clock (one-shots keep running into the settle tail);
+      // live events (playground taps) follow the page clock tLive
+      if (this.fx) {
+        this.fx.setEvents(m);
+        this.fx.update(m.loop ? localTime(m, t) : t, tLive);
+      }
       return m;
     }
 

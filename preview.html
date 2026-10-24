@@ -48,12 +48,13 @@
 <section id="grid"></section>
 
 <script src="engine/ipm.js"></script>
+<script src="engine/fx.js"></script>
 <script src="engine/motions.js"></script>
 <script src="characters/index.js"></script>
 <script src="cues/cues.js"></script>
 <script>
 const BASE = ['idle', 'happy_jump', 'cheer', 'sad', 'think', 'talk', 'shock', 'phone_look',
-  'walk', 'walk_across', 'dance', 'floss', 'dab', 'hero', 'robot', 'moonwalk', 'peace', 'heart', 'faint'];
+  'walk', 'walk_across', 'dance', 'floss', 'dab', 'hero', 'robot', 'moonwalk', 'peace', 'heart', 'faint', 'beckon', 'fever', 'tap@1', 'tap@2', 'tap@3', 'tap@4'];
 let MOTIONS = BASE;
 const $ = (s) => document.querySelector(s);
 let rig, motion = 'happy_jump', t = 0, speed = 1, playing = true, last = performance.now(), pivots = false;

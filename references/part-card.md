@@ -55,7 +55,7 @@ head > hair_tuft, eyes > pupils, brow_l, brow_r, mouth(data-group)
 | `busyHand: 'r'` | 这只手拿着东西；单手手势模板自动左右镜像（`IPM.flip`） | 老人右手提包 |
 | `swapAlias` | 用模板里的口型名，显示角色自己的形状 | 骗子 smile → smirk |
 | `extras` | 角色专属动作，进 preview / render | 骗子 sneaky |
-| `hair` | 惊吓时竖起的头发部件（默认 `hair_tuft`） | 骗子 `hair_lock` |
+| `hair` | 惊吓时竖起的头发部件（默认 `hair_tuft`；`null` = 没有，如戴头盔、光头） | 骗子 `hair_lock` |
 | `handX` | 手中心的 x（默认 84）：道具、V 字手指注入的位置 | 企鹅 98（鳍尖）、长颈鹿 74 |
 | `starsY` | 晕眩星星环的高度（默认 −400） | 长颈鹿 −520（头在脖子上） |
 | `height` | 身高（默认 372）：晕倒时按身高往右多挪，头不出画面 | 长颈鹿 480 |
