@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <!-- 银行职员 teller · origin = feet centre, y up is negative · same part names as young -->
+  <g transform="translate(300 560)">
+    <g data-part="shadow" data-pivot="0 0">
+      <ellipse cx="0" cy="0" rx="80" ry="12" fill="#000" opacity="0.12"/>
+    </g>
+    <g data-part="root" data-pivot="0 0">
+      <g data-part="body" data-pivot="0 0">
+
+        <g data-part="leg_l" data-pivot="-26 -86">
+          <rect x="-44" y="-96" width="34" height="84" rx="12" fill="#23403A"/>
+          <rect x="-52" y="-24" width="46" height="24" rx="11" fill="#1E1E24"/>
+        </g>
+        <g data-part="leg_r" data-pivot="26 -86">
+          <rect x="10" y="-96" width="34" height="84" rx="12" fill="#23403A"/>
+          <rect x="6" y="-24" width="46" height="24" rx="11" fill="#1E1E24"/>
+        </g>
+
+        <g data-part="torso" data-pivot="0 -84">
+          <!-- uniform blazer -->
+          <rect x="-78" y="-208" width="156" height="138" rx="36" fill="#2F7D6B"/>
+          <path d="M -24 -210 L 24 -210 L 4 -130 L -4 -130 Z" fill="#FFFFFF"/>
+          <path d="M -24 -210 L -4 -130 L -26 -160 L -42 -204 Z" fill="#256656"/>
+          <path d="M 24 -210 L 4 -130 L 26 -160 L 42 -204 Z" fill="#256656"/>
+          <circle cx="0" cy="-118" r="5" fill="#F2C230"/>
+          <circle cx="0" cy="-98" r="5" fill="#F2C230"/>
+          <rect x="-76" y="-88" width="152" height="16" rx="8" fill="#256656"/>
+          <!-- name badge pinned on the chest -->
+          <rect x="30" y="-176" width="34" height="20" rx="4" fill="#FFFFFF"/>
+          <rect x="35" y="-171" width="8" height="10" rx="2" fill="#2F7D6B"/>
+          <rect x="46" y="-170" width="14" height="3" rx="1.5" fill="#9FB4D1"/>
+          <rect x="46" y="-164" width="10" height="3" rx="1.5" fill="#D5DBE5"/>
+
+          <!-- neck scarf: knot is fixed, the two tails swing -->
+          <g data-part="scarf_l" data-pivot="-6 -200">
+            <path d="M -8 -202 L -2 -198 L -14 -160 L -26 -166 Z" fill="#F2C230"/>
+            <path d="M -14 -160 L -26 -166 L -24 -158 Z" fill="#D9A916"/>
+          </g>
+          <g data-part="scarf_r" data-pivot="6 -200">
+            <path d="M 8 -202 L 2 -198 L 12 -164 L 24 -170 Z" fill="#F2C230"/>
+            <path d="M 12 -164 L 24 -170 L 22 -162 Z" fill="#D9A916"/>
+          </g>
+          <rect x="-12" y="-210" width="24" height="16" rx="7" fill="#F2C230"/>
+
+          <g data-part="head" data-pivot="0 -198">
+            <rect x="-100" y="-290" width="22" height="38" rx="10" fill="#F2B48C"/>
+            <rect x="78" y="-290" width="22" height="38" rx="10" fill="#F2B48C"/>
+            <rect x="-90" y="-360" width="180" height="168" rx="60" fill="#FFD3B0"/>
+
+            <!-- neat bob with a straight fringe and a hair clip -->
+            <path d="M -98 -244 C -106 -330 -64 -382 0 -380 C 64 -382 106 -330 98 -244 L 84 -244 L 84 -310
+                     C 60 -318 20 -318 -4 -314 L -84 -314 L -84 -244 Z" fill="#2B2230"/>
+            <rect x="40" y="-336" width="26" height="8" rx="4" fill="#F2C230"/>
+            <g data-part="hair_tuft" data-pivot="-91 -250">
+              <path d="M -98 -250 L -84 -250 L -84 -228 Q -92 -224 -98 -230 Z" fill="#2B2230"/>
+            </g>
+
+            <circle cx="-62" cy="-232" r="10" fill="#FF9E9E" opacity="0.5"/>
+            <circle cx="62" cy="-232" r="10" fill="#FF9E9E" opacity="0.5"/>
+
+            <g data-part="eyes" data-pivot="0 -274">
+              <rect x="-54" y="-294" width="32" height="40" rx="12" fill="#FFFFFF"/>
+              <rect x="22" y="-294" width="32" height="40" rx="12" fill="#FFFFFF"/>
+              <g data-part="pupils" data-pivot="0 -274">
+                <rect x="-45" y="-284" width="15" height="22" rx="7" fill="#2B2233"/>
+                <rect x="30" y="-284" width="15" height="22" rx="7" fill="#2B2233"/>
+                <rect x="-40" y="-281" width="5" height="5" rx="2.5" fill="#FFFFFF"/>
+                <rect x="35" y="-281" width="5" height="5" rx="2.5" fill="#FFFFFF"/>
+              </g>
+            </g>
+
+            <g data-part="brow_l" data-pivot="-38 -304">
+              <rect x="-56" y="-308" width="36" height="8" rx="4" fill="#2B2230"/>
+            </g>
+            <g data-part="brow_r" data-pivot="38 -304">
+              <rect x="20" y="-308" width="36" height="8" rx="4" fill="#2B2230"/>
+            </g>
+
+            <rect x="-7" y="-254" width="14" height="16" rx="7" fill="#F2B48C"/>
+
+            <g data-part="mouth" data-pivot="0 -222">
+              <g data-group="mouth" data-swap="smile" data-default="">
+                <path d="M -16 -227 Q 0 -215 16 -227" fill="none" stroke="#B0414A" stroke-width="5" stroke-linecap="round"/>
+              </g>
+              <g data-group="mouth" data-swap="flat">
+                <path d="M -11 -222 L 11 -222" fill="none" stroke="#B0414A" stroke-width="5" stroke-linecap="round"/>
+              </g>
+              <g data-group="mouth" data-swap="sad">
+                <path d="M -14 -215 Q 0 -226 14 -215" fill="none" stroke="#B0414A" stroke-width="5" stroke-linecap="round"/>
+              </g>
+              <g data-group="mouth" data-swap="grin">
+                <path d="M -24 -232 L 24 -232 Q 22 -202 0 -202 Q -22 -202 -24 -232 Z" fill="#7A2A2A"/>
+                <path d="M -11 -209 Q 0 -217 11 -209 Q 6 -202 0 -202 Q -6 -202 -11 -209 Z" fill="#FF7D7D"/>
+                <rect x="-17" y="-232" width="34" height="7" rx="3" fill="#FFFFFF"/>
+              </g>
+              <g data-group="mouth" data-swap="open">
+                <rect x="-11" y="-233" width="22" height="22" rx="10" fill="#7A2A2A"/>
+                <rect x="-6" y="-218" width="12" height="6" rx="3" fill="#FF7D7D"/>
+              </g>
+              <g data-group="mouth" data-swap="wide">
+                <rect x="-18" y="-229" width="36" height="13" rx="6" fill="#7A2A2A"/>
+                <rect x="-13" y="-229" width="26" height="5" rx="2.5" fill="#FFFFFF"/>
+              </g>
+              <g data-group="mouth" data-swap="o">
+                <rect x="-8" y="-230" width="16" height="17" rx="8" fill="#7A2A2A"/>
+              </g>
+              <g data-group="mouth" data-swap="u">
+                <rect x="-6" y="-227" width="12" height="11" rx="5.5" fill="#7A2A2A"/>
+              </g>
+            </g>
+          </g>
+
+          <g data-part="arm_l" data-pivot="-84 -188">
+            <rect x="-100" y="-204" width="32" height="68" rx="16" fill="#2F7D6B"/>
+            <g data-part="fore_l" data-pivot="-84 -146">
+              <rect x="-98" y="-156" width="28" height="54" rx="14" fill="#2F7D6B"/>
+              <rect x="-98" y="-112" width="28" height="9" rx="4" fill="#FFFFFF"/>
+              <rect x="-99" y="-106" width="30" height="30" rx="14" fill="#FFD3B0"/>
+            </g>
+          </g>
+          <g data-part="arm_r" data-pivot="84 -188">
+            <rect x="68" y="-204" width="32" height="68" rx="16" fill="#2F7D6B"/>
+            <g data-part="fore_r" data-pivot="84 -146">
+              <rect x="70" y="-156" width="28" height="54" rx="14" fill="#2F7D6B"/>
+              <rect x="70" y="-112" width="28" height="9" rx="4" fill="#FFFFFF"/>
+              <!-- open palm for the "please wait" gesture, shown by the alert motion -->
+              <g data-group="hand_r" data-swap="fist" data-default="">
+                <rect x="69" y="-106" width="30" height="30" rx="14" fill="#FFD3B0"/>
+              </g>
+              <g data-group="hand_r" data-swap="palm">
+                <rect x="67" y="-110" width="34" height="38" rx="15" fill="#FFD3B0"/>
+                <rect x="96" y="-104" width="12" height="20" rx="6" fill="#FFD3B0"/>
+                <path d="M 75 -100 L 75 -84 M 84 -102 L 84 -84 M 93 -100 L 93 -86" stroke="#F2B48C" stroke-width="2.5" stroke-linecap="round"/>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

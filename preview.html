@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IP 动作预览</title>
+<style>
+  :root { --bg:#F6F1E7; --panel:#FFFFFF; --ink:#2B2233; --muted:#8A8191; --line:#E8E1D4; --accent:#FF8A3D; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.5 system-ui, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  header { display:flex; align-items:center; gap:12px; padding:14px 20px; border-bottom:1px solid var(--line); background:var(--panel); }
+  header h1 { font-size:16px; margin:0 12px 0 0; }
+  select, button { font:inherit; color:inherit; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:6px 10px; cursor:pointer; }
+  button.on { background:var(--ink); color:#fff; border-color:var(--ink); }
+  main { display:grid; grid-template-columns:minmax(0,1fr) 220px; gap:16px; padding:16px 20px; max-width:1100px; margin:0 auto; }
+  #stage { aspect-ratio:1; background:var(--panel); border-radius:16px; border:1px solid var(--line); max-height:70vh; justify-self:center; width:100%; max-width:70vh; }
+  aside { display:flex; flex-direction:column; gap:6px; }
+  aside button { text-align:left; display:flex; justify-content:space-between; }
+  aside small { color:var(--muted); }
+  .bar { grid-column:1 / -1; display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+  #scrub { flex:1; min-width:160px; accent-color:var(--accent); }
+  #time { font-variant-numeric:tabular-nums; color:var(--muted); min-width:120px; }
+  #grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; padding:0 20px 24px; max-width:1100px; margin:0 auto; }
+  #grid figure { margin:0; background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden; cursor:pointer; }
+  #grid .s { aspect-ratio:1; }
+  #grid figcaption { font-size:12px; text-align:center; padding:4px; color:var(--muted); }
+  @media (max-width:700px) { main { grid-template-columns:1fr; } aside { flex-direction:row; flex-wrap:wrap; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>IP 动作预览</h1>
+  <select id="char"></select>
+</header>
+<main>
+  <div id="stage"></div>
+  <aside id="motions"></aside>
+  <div class="bar">
+    <button id="play" class="on">暂停</button>
+    <button data-speed="1" class="on">1×</button>
+    <button data-speed="0.5">0.5×</button>
+    <button data-speed="0.25">0.25×</button>
+    <input id="scrub" type="range" min="0" max="1000" value="0">
+    <span id="time"></span>
+    <button id="pivots">显示 pivot</button>
+  </div>
+</main>
+<section id="grid"></section>
+
+<script src="engine/ipm.js"></script>
+<script src="engine/motions.js"></script>
+<script src="characters/index.js"></script>
+<script src="cues/cues.js"></script>
+<script>
+const BASE = ['idle', 'happy_jump', 'cheer', 'sad', 'think', 'talk', 'shock', 'phone_look',
+  'walk', 'walk_across', 'dance', 'floss', 'dab', 'hero', 'robot', 'moonwalk', 'peace', 'heart', 'faint'];
+let MOTIONS = BASE;
+const $ = (s) => document.querySelector(s);
+let rig, motion = 'happy_jump', t = 0, speed = 1, playing = true, last = performance.now(), pivots = false;
+let thumbs = [];
+
+for (const id in IPM.characters) $('#char').add(new Option(IPM.characters[id].name + ' · ' + id, id));
+
+async function load(id) {
+  rig = await IPM.mount($('#stage'), id);
+  rig.showPivots(pivots);
+  MOTIONS = [...BASE, ...(rig.def.extras || []), ...Object.keys(IPM.cues).map((c) => 'speak@' + c), 'idle@1', 'idle@2', 'pose_test'];
+  if (!MOTIONS.includes(motion)) motion = 'happy_jump';
+  $('#motions').innerHTML = '';
+  for (const name of MOTIONS) {
+    const m = rig.motion(name);
+    const b = document.createElement('button');
+    b.innerHTML = `<span>${name}</span><small>${m.duration.toFixed(2)}s${m.loop ? ' ↻' : ''}</small>`;
+    b.onclick = () => { motion = name; t = 0; mark(); };
+    b.dataset.m = name;
+    $('#motions').appendChild(b);
+  }
+  $('#grid').innerHTML = '';
+  thumbs = [];
+  for (const name of MOTIONS.filter((n) => n !== 'pose_test')) {
+    const fig = document.createElement('figure');
+    fig.innerHTML = `<div class="s"></div><figcaption>${name}</figcaption>`;
+    fig.onclick = () => { motion = name; t = 0; mark(); };
+    $('#grid').appendChild(fig);
+    thumbs.push({ name, rig: await IPM.mount(fig.querySelector('.s'), id) });
+  }
+  mark();
+}
+function mark() { document.querySelectorAll('#motions button').forEach((b) => b.classList.toggle('on', b.dataset.m === motion)); }
+
+function frame(now) {
+  const dt = (now - last) / 1000; last = now;
+  const m = rig && rig.motion(motion);
+  if (m) {
+    if (playing) {
+      t += dt * speed;
+      // one-shot motions: hold the last frame 0.6s, then replay
+      if (!m.loop && t > m.duration + 0.6) t = 0;
+    }
+    rig.pose(motion, t);
+    const lt = m.loop ? t % m.duration : Math.min(t, m.duration);
+    $('#scrub').value = Math.round((lt / m.duration) * 1000);
+    $('#time').textContent = `${lt.toFixed(2)}s · 帧 ${Math.round(lt * 30)}/${Math.round(m.duration * 30)}`;
+    const gt = now / 1000;
+    for (const th of thumbs) {
+      const tm = th.rig.motion(th.name);
+      th.rig.pose(th.name, tm.loop ? gt : gt % (tm.duration + 0.6));
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+$('#char').onchange = (e) => load(e.target.value);
+$('#play').onclick = (e) => { playing = !playing; e.target.textContent = playing ? '暂停' : '播放'; e.target.classList.toggle('on', playing); };
+document.querySelectorAll('[data-speed]').forEach((b) => b.onclick = () => {
+  speed = +b.dataset.speed;
+  document.querySelectorAll('[data-speed]').forEach((x) => x.classList.toggle('on', x === b));
+});
+$('#scrub').oninput = (e) => {
+  playing = false; $('#play').textContent = '播放'; $('#play').classList.remove('on');
+  t = (e.target.value / 1000) * rig.motion(motion).duration;
+};
+$('#pivots').onclick = (e) => { pivots = !pivots; rig.showPivots(pivots); e.target.classList.toggle('on', pivots); };
+
+load($('#char').value).then(() => requestAnimationFrame(frame));
+</script>
+</body>
+</html>

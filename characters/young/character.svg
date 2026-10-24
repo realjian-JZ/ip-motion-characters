@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <!-- 年轻人 young · origin = feet centre, y up is negative · see references/part-card.md -->
+  <g transform="translate(300 560)">
+    <g data-part="shadow" data-pivot="0 0">
+      <ellipse cx="0" cy="0" rx="82" ry="12" fill="#000" opacity="0.12"/>
+    </g>
+    <g data-part="root" data-pivot="0 0">
+      <g data-part="body" data-pivot="0 0">
+
+        <g data-part="leg_l" data-pivot="-28 -86">
+          <rect x="-46" y="-96" width="36" height="82" rx="12" fill="#33507E"/>
+          <rect x="-54" y="-27" width="48" height="27" rx="13" fill="#FFFFFF"/>
+          <rect x="-54" y="-8" width="48" height="8" rx="4" fill="#D5DBE5"/>
+        </g>
+        <g data-part="leg_r" data-pivot="28 -86">
+          <rect x="10" y="-96" width="36" height="82" rx="12" fill="#33507E"/>
+          <rect x="6" y="-27" width="48" height="27" rx="13" fill="#FFFFFF"/>
+          <rect x="6" y="-8" width="48" height="8" rx="4" fill="#D5DBE5"/>
+        </g>
+
+        <g data-part="torso" data-pivot="0 -84">
+          <!-- hood sits behind the head -->
+          <rect x="-64" y="-226" width="128" height="40" rx="18" fill="#E46F25"/>
+          <rect x="-78" y="-208" width="156" height="138" rx="38" fill="#FF8A3D"/>
+          <rect x="-76" y="-88" width="152" height="16" rx="8" fill="#E46F25"/>
+          <rect x="-46" y="-140" width="92" height="34" rx="15" fill="#F07A2E"/>
+
+          <g data-part="strings_l" data-pivot="-16 -200">
+            <rect x="-18" y="-200" width="4" height="50" rx="2" fill="#FFFFFF"/>
+            <rect x="-21" y="-156" width="10" height="13" rx="4" fill="#FFFFFF"/>
+          </g>
+          <g data-part="strings_r" data-pivot="16 -200">
+            <rect x="14" y="-200" width="4" height="50" rx="2" fill="#FFFFFF"/>
+            <rect x="11" y="-156" width="10" height="13" rx="4" fill="#FFFFFF"/>
+          </g>
+
+          <g data-part="head" data-pivot="0 -198">
+            <rect x="-100" y="-292" width="22" height="38" rx="10" fill="#F2B48C"/>
+            <rect x="78" y="-292" width="22" height="38" rx="10" fill="#F2B48C"/>
+            <rect x="-90" y="-362" width="180" height="168" rx="62" fill="#FFD3B0"/>
+
+            <g data-part="hair_tuft" data-pivot="-4 -370">
+              <path d="M -4 -368 C -12 -392 4 -410 26 -404 C 12 -398 8 -386 10 -368 Z" fill="#2E2230"/>
+            </g>
+            <path d="M -95 -286 C -102 -350 -56 -380 0 -378 C 56 -380 102 -350 95 -286
+                     C 84 -316 60 -330 32 -328 C 8 -326 -14 -306 -44 -304 C -66 -303 -84 -294 -95 -286 Z"
+                  fill="#2E2230"/>
+
+            <circle cx="-62" cy="-234" r="11" fill="#FF9E9E" opacity="0.55"/>
+            <circle cx="62" cy="-234" r="11" fill="#FF9E9E" opacity="0.55"/>
+
+            <g data-part="eyes" data-pivot="0 -276">
+              <rect x="-55" y="-297" width="34" height="42" rx="13" fill="#FFFFFF"/>
+              <rect x="21" y="-297" width="34" height="42" rx="13" fill="#FFFFFF"/>
+              <g data-part="pupils" data-pivot="0 -276">
+                <rect x="-46" y="-287" width="17" height="23" rx="7" fill="#2B2233"/>
+                <rect x="30" y="-287" width="17" height="23" rx="7" fill="#2B2233"/>
+                <rect x="-40" y="-284" width="6" height="6" rx="3" fill="#FFFFFF"/>
+                <rect x="36" y="-284" width="6" height="6" rx="3" fill="#FFFFFF"/>
+              </g>
+            </g>
+
+            <g data-part="brow_l" data-pivot="-38 -314">
+              <rect x="-57" y="-319" width="38" height="10" rx="5" fill="#2E2230"/>
+            </g>
+            <g data-part="brow_r" data-pivot="38 -314">
+              <rect x="19" y="-319" width="38" height="10" rx="5" fill="#2E2230"/>
+            </g>
+
+            <rect x="-8" y="-258" width="16" height="17" rx="8" fill="#F2B48C"/>
+
+            <g data-part="mouth" data-pivot="0 -224">
+              <g data-group="mouth" data-swap="smile" data-default="">
+                <path d="M -20 -230 Q 0 -212 20 -230" fill="none" stroke="#7A2A2A" stroke-width="6" stroke-linecap="round"/>
+              </g>
+              <g data-group="mouth" data-swap="flat">
+                <path d="M -13 -224 L 13 -224" fill="none" stroke="#7A2A2A" stroke-width="6" stroke-linecap="round"/>
+              </g>
+              <g data-group="mouth" data-swap="sad">
+                <path d="M -17 -216 Q 0 -230 17 -216" fill="none" stroke="#7A2A2A" stroke-width="6" stroke-linecap="round"/>
+              </g>
+              <g data-group="mouth" data-swap="grin">
+                <path d="M -27 -235 L 27 -235 Q 25 -202 0 -202 Q -25 -202 -27 -235 Z" fill="#7A2A2A"/>
+                <path d="M -13 -209 Q 0 -219 13 -209 Q 7 -202 0 -202 Q -7 -202 -13 -209 Z" fill="#FF7D7D"/>
+                <rect x="-19" y="-235" width="38" height="7" rx="3" fill="#FFFFFF"/>
+              </g>
+              <g data-group="mouth" data-swap="open">
+                <rect x="-13" y="-237" width="26" height="25" rx="11" fill="#7A2A2A"/>
+                <rect x="-8" y="-220" width="16" height="7" rx="3.5" fill="#FF7D7D"/>
+              </g>
+              <g data-group="mouth" data-swap="wide">
+                <rect x="-20" y="-233" width="40" height="15" rx="7" fill="#7A2A2A"/>
+                <rect x="-15" y="-233" width="30" height="5" rx="2.5" fill="#FFFFFF"/>
+              </g>
+              <g data-group="mouth" data-swap="o">
+                <rect x="-9" y="-234" width="18" height="19" rx="8.5" fill="#7A2A2A"/>
+              </g>
+              <g data-group="mouth" data-swap="u">
+                <rect x="-6" y="-230" width="12" height="12" rx="6" fill="#7A2A2A"/>
+              </g>
+            </g>
+          </g>
+
+          <!-- arms are drawn after the head so a hand can rest on the chin -->
+          <g data-part="arm_l" data-pivot="-84 -188">
+            <rect x="-100" y="-204" width="32" height="68" rx="16" fill="#FF8A3D"/>
+            <g data-part="fore_l" data-pivot="-84 -146">
+              <rect x="-98" y="-156" width="28" height="54" rx="14" fill="#FF8A3D"/>
+              <rect x="-99" y="-114" width="30" height="12" rx="6" fill="#E46F25"/>
+              <rect x="-99" y="-106" width="30" height="30" rx="14" fill="#FFD3B0"/>
+            </g>
+          </g>
+          <g data-part="arm_r" data-pivot="84 -188">
+            <rect x="68" y="-204" width="32" height="68" rx="16" fill="#FF8A3D"/>
+            <g data-part="fore_r" data-pivot="84 -146">
+              <rect x="70" y="-156" width="28" height="54" rx="14" fill="#FF8A3D"/>
+              <rect x="69" y="-114" width="30" height="12" rx="6" fill="#E46F25"/>
+              <rect x="69" y="-106" width="30" height="30" rx="14" fill="#FFD3B0"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

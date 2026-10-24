@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin:0; background:transparent; } #stage { width:600px; height:600px; }</style>
+</head>
+<body>
+<div id="stage"></div>
+<script src="engine/ipm.js"></script>
+<script src="engine/motions.js"></script>
+<script src="characters/index.js"></script>
+<script src="cues/cues.js"></script>
+<script src="engine/lint.js"></script>
+<script>
+// driven by scripts/render.py over CDP
+let rig, motion;
+window.__extras = (char) => IPM.characters[char].extras || [];
+window.__load = async (char, name) => {
+  if (!rig || rig.def.id !== char) rig = await IPM.mount(document.getElementById('stage'), char);
+  motion = name;
+  const m = rig.motion(name);
+  return { duration: m.duration, loop: !!m.loop };
+};
+window.__motions = () => Object.keys(IPM.motions);
+window.__seek = (t) => { rig.pose(motion, t); return true; };
+</script>
+</body>
+</html>
