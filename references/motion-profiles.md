@@ -33,6 +33,7 @@
 | `sly` | sly | overshoot | 1.7 | 多一次反向瞟眼、重心跟眼神挪、单边挑眉 |
 | `tired` | inout | out | 1.45 | 打瞌睡：眼皮下沉、头一点、猛然惊醒 |
 | `slow` | inout | out | 1.5 | 更深更慢的呼吸（颤动来自 stability） |
+| `waddle` | ease | bouncy | 1.1 | 站着也左右摇、偶尔拍鳍；走路是快而小的碎步 + 大幅左右摇（企鹅） |
 
 ## 反诈系列 5 个角色
 
@@ -48,3 +49,16 @@
 
 上班族的特殊点：常态 energy 0.4，但"高兴/惊讶"类动作临时用 0.85——**反差**就是他的性格。
 在模板里用 `D.burst` 读取（未设置时等于 energy）。
+
+## 动物园系列 5 个角色（v1.1）
+
+| 角色 | id | weight | energy | stability | style | 其他 | 会晃的部位 |
+|---|---|---|---|---|---|---|---|
+| 熊猫 | `panda` | 0.75 | 0.45 | 0.95 | tired | burst 0.75 · armMax 110 · hair: ear_r | 圆耳朵 |
+| 猴子 | `monkey` | 0.25 | 0.95 | 0.8 | bouncy | — | 卷尾巴（低阻尼）、耳朵、呆毛 |
+| 长颈鹿 | `giraffe` | 0.5 | 0.55 | 1 | slow | height 480 · starsY −520 · handX 74 · chinReach false · noFingers · hair: horns | 小角、耳朵、尾巴 |
+| 狮子 | `lion` | 0.6 | 0.7 | 1 | steady | burst 0.9 · hair: mane_tuft | 鬃毛（ss 果冻 + r 滞后）、鬃毛尖、尾巴 |
+| 企鹅 | `penguin` | 0.45 | 0.6 | 0.9 | waddle | handX 98 · noFingers | 呆毛；鳍由前臂惯性自动带 |
+
+剪影测试结果：走过 240px，猴子 1.9s · 狮子 3.1s · 企鹅 3.1s（碎步）· 熊猫 3.9s · 长颈鹿 4.2s；
+企鹅起初用 slow，和熊猫、长颈鹿几乎同拍（3.9 / 4.0 / 4.2s），idle 活动帧 1% → 改为专属 waddle 后拉开，idle 26%。

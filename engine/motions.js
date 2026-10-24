@@ -130,6 +130,13 @@
     } else if (D.style === 'slow') {
       // deeper, slower breathing
       t.body.ss = [[0, 1, 'inout'], [2.4, 1.03, 'inout'], [4.8, 1]];
+    } else if (D.style === 'waddle') {
+      // can't stand still: rocks from foot to foot, one happy flipper flap
+      t.torso = { r: [[0, 0, 'inout'], [0.6, 3, 'inout'], [1.8, -3, 'inout'], [3.0, 3, 'inout'], [4.2, -3, 'inout'], [4.8, 0]] };
+      t.root = { x: [[0, 0, 'inout'], [0.6, -2, 'inout'], [1.8, 2, 'inout'], [3.0, -2, 'inout'], [4.2, 2, 'inout'], [4.8, 0]] };
+      const flapL = [[0, 3], [3.2, 3, 'snap'], [3.32, 24, 'inout'], [3.44, 6, 'inout'], [3.56, 24, 'inout'], [3.72, 3], [4.8, 3]];
+      t.arm_l = { r: flapL };
+      t.arm_r = { r: mirror(flapL) };
     }
     return m;
   }
@@ -257,6 +264,8 @@
   M.think = (D, def) => {
     const T = (x) => x * D.tempo, L = D.lag, A = Math.min(D.amp, 1.1);
     const reach = T(0.42), exit = T(1.9), back = T(2.45);
+    // chin out of reach (giraffe: head on a neck) → hoof on the chest instead (upper arm 20°, forearm 95°)
+    const UA = def && def.chinReach === false ? 20 : 26, FA = def && def.chinReach === false ? 95 : 140;
     // gesture with the free hand: a character holding something in the right hand mirrors the pose
     const m = {
       duration: back + 0.25,
@@ -264,10 +273,10 @@
       tracks: {
         body: { ss: [[0, 1], [exit, 1, 'snap'], [exit + T(0.1), 1.04, D.settle], [exit + T(0.4), 1]] },
         torso: { r: [[0, 0, 'inout'], [T(0.5), 2, 'inout'], [exit, 2, 'snap'], [T(2.2), 0]] },
-        arm_r: { r: [[0, 0, 'snap'], [T(0.08), -6, 'snap'], [reach, 26, D.settle], [exit, 26, 'snap'], [T(2.15), -4, D.settle], [back, 0]] },
+        arm_r: { r: [[0, 0, 'snap'], [T(0.08), -6, 'snap'], [reach, UA, D.settle], [exit, UA, 'snap'], [T(2.15), -4, D.settle], [back, 0]] },
         fore_r: {
-          r: [[0, 0, 'snap'], [T(0.12) + L, 0, 'snap'], [T(0.5) + L, 140, D.settle], [T(1.0), 140, 'inout'], [T(1.12), 132, 'inout'],
-            [T(1.24), 140, 'inout'], [T(1.36), 132, 'inout'], [T(1.48), 140], [exit, 140, 'snap'], [T(2.2), 0, D.settle], [back, 0]],
+          r: [[0, 0, 'snap'], [T(0.12) + L, 0, 'snap'], [T(0.5) + L, FA, D.settle], [T(1.0), FA, 'inout'], [T(1.12), FA - 8, 'inout'],
+            [T(1.24), FA, 'inout'], [T(1.36), FA - 8, 'inout'], [T(1.48), FA], [exit, FA, 'snap'], [T(2.2), 0, D.settle], [back, 0]],
         },
         arm_l: { r: [[0, 0], [T(0.5), -4, 'inout'], [exit, -4, 'snap'], [T(2.2), 8, D.settle], [back, 0]] },
         head: {
@@ -685,11 +694,12 @@
     sly: { step: 1.3, lift: 0.26, bob: 3, sway: 3, arm: 3, crouch: 5, head: 3 }, // high-knee tiptoe sneak, hunched
     tired: { step: 1.15, lift: 0.08, bob: 3, sway: 3, arm: 5, crouch: 2, head: 7 }, // feet drag, head hangs
     slow: { step: 1.4, lift: 0.06, bob: 2, sway: 5, arm: 4, crouch: 3, head: 3 }, // shuffle, rocking side to side
+    waddle: { step: 0.75, lift: 0.05, bob: 2, sway: 7, arm: 10, crouch: 0, head: 0, strideK: 0.6 }, // quick tiny steps, big side-to-side rock, flippers flap
   };
   const gait = (D) => {
     const g = GAIT[D.style] || GAIT.steady;
     const P = 0.36 * D.tempo * g.step; // one step; a cycle is two
-    return Object.assign({}, g, { P, stride: 55 * (0.6 + 0.8 * D.energy) });
+    return Object.assign({}, g, { P, stride: 55 * (0.6 + 0.8 * D.energy) * (g.strideK || 1) });
   };
 
   // one walk cycle (left step, right step) starting at t0; returns per-track key lists
@@ -1034,6 +1044,8 @@
     const b1 = land + 0.1, b2 = land + 0.22, b3 = land + 0.32, b4 = land + 0.42, rest = land + 0.6;
     const twitch = rest + 0.6, upT = twitch + 0.7, up = upT + 0.32, end = up + 0.75;
     const fall = -85, LIE = -38;
+    // taller bodies (giraffe) land further right so the head stays in frame; 372 = standard height → unchanged
+    const HT = (def && def.height) || 372, X0 = 150 + Math.max(0, HT - 372) * 0.9, SHX = -185 - (HT - 372) / 2;
     const circle = (r, period, until, phase = 0) => {
       const k = [[0, 0]];
       for (let t = 0.1, i = 0; t < until; t += period / 4, i++) k.push([t, +(r * Math.cos(phase + (i * Math.PI) / 2)).toFixed(2), 'inout']);
@@ -1050,7 +1062,7 @@
           [upT, 1, 'snap'], [upT + 0.1, 0.9, 'out'], [up, 1.1, D.settle], [up + 0.3, 1]],
       },
       root: {
-        x: [[0, 0], [buckle, 0, 'in'], [land, 150], [upT, 150, 'snap'], [up, 0, 'out'], [end, 0]],
+        x: [[0, 0], [buckle, 0, 'in'], [land, X0], [upT, X0, 'snap'], [up, 0, 'out'], [end, 0]],
         // lying height: torso side on the floor (−66 left it hovering ~30px with the arm through the floor)
         y: [[0, 0], [buckle, 0, 'in'], [land, LIE, 'out'], [b1, LIE - 18, 'in'], [b2, LIE, 'out'], [b3, LIE - 6, 'in'], [b4, LIE], [upT, LIE, 'snap'], [up, 0, 'out'], [end, 0]],
       },
@@ -1085,7 +1097,7 @@
       leg_r: { sy: [[0, 1], [dz, 1, 'out'], [buckle, 0.9, 'in'], [land, 1], [end, 1]],
         r: [[0, 0], [land + 0.03, 0, 'snap'], [b1 + 0.03, -16, 'out'], [b2 + 0.03, 0, 'in'], [twitch, 0, 'snap'], [twitch + 0.08, -18, 'out'], [twitch + 0.25, 0], [end, 0]] },
       // shadow stretches under the whole lying body
-      shadow: { x: [[0, 0], [buckle, 0, 'in'], [land, -185], [upT, -185, 'snap'], [up, 0, 'out'], [end, 0]], sx: [[0, 1], [buckle, 1, 'in'], [land, 2.6], [upT, 2.6, 'snap'], [up, 1, 'out'], [end, 1]] },
+      shadow: { x: [[0, 0], [buckle, 0, 'in'], [land, SHX], [upT, SHX, 'snap'], [up, 0, 'out'], [end, 0]], sx: [[0, 1], [buckle, 1, 'in'], [land, 2.6 * HT / 372], [upT, 2.6 * HT / 372, 'snap'], [up, 1, 'out'], [end, 1]] },
     };
 
     // stars: the ring spins (constant rate) until impact, then holds; each star is thrown in a world-space arc,
@@ -1104,7 +1116,7 @@
     const G = 1600, DT = 1 / 30;
     IPM.STARS.forEach(([cx, cy], i) => {
       // star's height above the floor at impact
-      const px = cx, py = cy + 400;
+      const px = cx, py = cy; // offsets from the ring centre
       const wy0 = ringWorldY + (px * Math.sin(theta) + py * Math.cos(theta));
       // thrown up and to the right: the head lies near the left edge of the frame
       const vel = [[70, -360], [190, -250], [-30, -300]][i];
@@ -1142,7 +1154,7 @@
       },
     };
     // dust where the body hits (around its middle, ~185px from the feet), a smaller puff on the first bounce; shake the picture
-    addDust(m, [{ t: land, x: -35, s: 1.4 }, { t: b2, x: -35, s: 0.7 }]);
+    addDust(m, [{ t: land, x: X0 + SHX, s: 1.4 }, { t: b2, x: X0 + SHX, s: 0.7 }]);
     addShake(m, land, 7);
     return m;
   };

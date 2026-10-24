@@ -63,6 +63,7 @@
     sly: { main: 'sly', settle: 'overshoot', antic: 1.7 },
     tired: { main: 'inout', settle: 'out', antic: 1.45 },
     slow: { main: 'inout', settle: 'out', antic: 1.5 },
+    waddle: { main: 'ease', settle: 'bouncy', antic: 1.1 },
   };
 
   function derive(p) {
@@ -338,6 +339,7 @@
   function injectProps(svg, def) {
     injectStage(svg);
     const side = IPM.freeSide(def);
+    const hx = def.handX ?? 84; // hand centre x; animals with longer / shorter arms override it
     const fore = svg.querySelector(`[data-part="fore_${side}"]`);
     if (!fore) return;
     // insert before the hand: the first hand swap group, else the last child
@@ -348,11 +350,11 @@
         g.setAttribute('data-group', 'prop_' + name);
         g.setAttribute('data-swap', state);
         if (state === 'off') g.setAttribute('data-default', '');
-        else g.innerHTML = draw(side === 'r' ? 84 : -84);
+        else g.innerHTML = draw(side === 'r' ? hx : -hx);
         fore.insertBefore(g, hand);
       }
     }
-    injectFX(svg, fore, side === 'r' ? 84 : -84);
+    injectFX(svg, fore, side === 'r' ? hx : -hx, def);
   }
 
   // Gesture fingers and effects, also shared by every character.
@@ -385,12 +387,13 @@
     for (const g of swapPair(id, onHTML)) p.appendChild(g);
     return p;
   }
-  function injectFX(svg, fore, x) {
+  function injectFX(svg, fore, x, def) {
     // V sign: fingers from the knuckles outward, splayed ±14°
     // thick fingers with a dark outline: they often sit near the face, and skin on skin disappears
     const finger = (deg) =>
       `<rect x="${x - 6.5}" y="-88" width="13" height="38" rx="6.5" fill="#FFD3B0" stroke="#D9895F" stroke-width="2.5" transform="rotate(${deg} ${x} -86)"/>`;
-    const [none, peace] = swapPair('gesture', finger(20) + finger(-20));
+    // flippers and hooves have no fingers (def.noFingers): the gesture group stays empty, the pose still plays
+    const [none, peace] = swapPair('gesture', def.noFingers ? '' : finger(20) + finger(-20));
     none.setAttribute('data-swap', 'none');
     peace.setAttribute('data-swap', 'peace');
     fore.appendChild(none);
@@ -403,11 +406,13 @@
     }
     // dizzy stars: the ring (fx_stars) spins; each star is its own part so it can be knocked loose on impact
     const head = svg.querySelector('[data-part="head"]');
-    const STARS = [[48, -400, 13], [-24, -358, 11], [-24, -442, 11]];
+    // offsets from the ring centre; the ring sits at def.starsY (default −400, just above a standard head)
+    const STARS = [[48, 0, 13], [-24, 42, 11], [-24, -42, 11]];
     IPM.STARS = STARS;
+    const sy = def.starsY ?? -400;
     if (head) {
-      head.appendChild(fxPart('fx_stars', '0 -400',
-        STARS.map(([cx, cy, r], i) => `<g data-part="fx_star${i}" data-pivot="${cx} ${cy}">${star(cx, cy, r)}</g>`).join('')));
+      head.appendChild(fxPart('fx_stars', `0 ${sy}`,
+        STARS.map(([cx, cy, r], i) => `<g data-part="fx_star${i}" data-pivot="${cx} ${cy + sy}">${star(cx, cy + sy, r)}</g>`).join('')));
     }
   }
 

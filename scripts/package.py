@@ -1,7 +1,10 @@
 """Package the skill for sharing: a clean GitHub-ready repository + a zip.
 
     python scripts/showcase.py          # first: README images in docs/
-    python scripts/package.py --repo-url https://github.com/<you>/ip-motion-characters --author "<你的名字>"
+    python scripts/package.py --repo-url https://github.com/<you>/ip-motion-characters --author <github-user> -m "v1.1: …"
+
+If dist/ip-motion-characters already has a git history, the new release is committed ON TOP of it (normal push);
+--fresh starts a new one-commit history instead (needs a force push).
 
 dist/ip-motion-characters/       the repository (SKILL.md at the root, so cloning it into a skills folder just works)
 dist/ip-motion-characters.zip    the same folder zipped (Claude.ai skill upload / 网盘)
@@ -65,9 +68,11 @@ README = """# IP Motion Characters · 会动的 IP 角色
 
 ![动作合集](docs/moves.gif)
 
+![动物园系列](docs/zoo.gif)
+
 ## 它能做什么
 
-- **31 个动作开箱即用**：idle、跳跃、欢呼、难过、思考、说话、惊吓、看手机、走路、走过画面、派对舞、甩胯舞、机器人舞、太空步、dab、叉腰、比耶、比心、晕倒……
+- **33 个动作开箱即用**：idle、跳跃、欢呼、难过、思考、说话、惊吓、看手机、走路、走过画面、派对舞、甩胯舞、机器人舞、太空步、dab、叉腰、比耶、比心、晕倒……
 - **性格决定节奏**：每个角色一份「运动性格档案」（体重 / 能量 / 稳定性 / 风格）。同一个动作模板，年轻人蹦着走，老人慢慢挪，骗子蹑手蹑脚。
 - **冲击有连锁反应**：撞击定格、果冻回弹、头晚一拍、松脱物飞散、表情撞歪、扬尘、画面震动。
 - **自动次级运动**：头发、领带、包的弹簧；前臂惯性；挂件保持下垂；身体与头的果冻层。
@@ -75,7 +80,12 @@ README = """# IP Motion Characters · 会动的 IP 角色
 - **口型驱动**：读 [Rhubarb Lip Sync](https://github.com/DanielSWolf/rhubarb-lip-sync) 的输出，自动加重音点头、停顿眨眼。
 - **质量护栏**：`lint`（动画硬规则数值检查）、剪影对比（只看动作能否分出角色）、视觉回归（防止改坏旧动作）。
 
-自带 5 个示例角色（反诈系列：年轻人、骗子、老年人、上班族、银行职员），可以照着做自己的系列。
+自带两套示例角色，共用同一套骨骼和动作：
+
+- **反诈系列**：年轻人、骗子、老年人、上班族、银行职员
+- **动物园系列**：熊猫、猴子、长颈鹿、狮子、企鹅（尾巴、耳朵、鬃毛、小角都会晃；企鹅有专属的摇摆小碎步）
+
+照着做自己的系列即可。
 
 ## 安装
 
@@ -118,8 +128,8 @@ python scripts/review.py                           # 总览页 out/index.html
 SKILL.md          流程、确认关口、硬规则（Claude 读这个）
 references/       造型规范、部件卡、运动性格档案、曲线与冲击 token、状态名、口型、质检清单
 engine/           ipm.js 引擎 · motions.js 动作模板 · lint.js
-characters/       5 个示例角色（SVG 部件 + 性格档案）
-scripts/          render · lint · regress · silhouette · review · showcase · package
+characters/       两套示例角色（SVG 部件 + 性格档案）；_zoo_build.py 从共享部件生成动物园系列
+scripts/          render · lint · regress · silhouette · keyframes · review · showcase · package
 CHANGELOG.md      每条规则从哪个问题来、怎么验证
 ```
 
@@ -141,32 +151,55 @@ def copy_tree(src, dst):
         shutil.copy2(src, dst)
 
 
+def rm_tree(path):
+    # .git objects are read-only on Windows: clear the flag and retry
+    shutil.rmtree(path, onerror=lambda fn, p, _: (os.chmod(p, stat.S_IWRITE), fn(p)))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--repo-url", default=f"https://github.com/<你的用户名>/{NAME}")
     ap.add_argument("--author", default="<作者>")
+    ap.add_argument("--email", default=None, help="commit email (default: <author>@users.noreply.github.com)")
+    ap.add_argument("-m", "--message", default="Initial release", help="commit message for this release")
+    ap.add_argument("--fresh", action="store_true", help="discard the existing history and start over (needs a force push)")
     a = ap.parse_args()
 
     dist = os.path.join(ROOT, "dist")
     repo = os.path.join(dist, NAME)
-    if os.path.exists(repo):
-        # .git objects are read-only on Windows: clear the flag and retry
-        shutil.rmtree(repo, onerror=lambda fn, path, _: (os.chmod(path, stat.S_IWRITE), fn(path)))
-    os.makedirs(repo)
+    keep_history = os.path.isdir(os.path.join(repo, ".git")) and not a.fresh
+    if keep_history:
+        # keep .git (history, remote): replace everything else, then commit on top → a normal push
+        for entry in os.listdir(repo):
+            if entry == ".git":
+                continue
+            full = os.path.join(repo, entry)
+            rm_tree(full) if os.path.isdir(full) else os.remove(full)
+    else:
+        if os.path.exists(repo):
+            rm_tree(repo)
+        os.makedirs(repo)
     for item in INCLUDE:
         copy_tree(os.path.join(ROOT, item), os.path.join(repo, item))
     open(os.path.join(repo, "README.md"), "w", encoding="utf-8").write(README.format(repo=a.repo_url, name=NAME))
     open(os.path.join(repo, "LICENSE"), "w", encoding="utf-8").write(LICENSE.format(year=datetime.date.today().year, author=a.author))
     open(os.path.join(repo, ".gitignore"), "w", encoding="utf-8").write(GITIGNORE)
 
-    # a fresh one-commit history, ready to push
-    def git(*args):
-        subprocess.run(["git", *args], cwd=repo, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    git("init", "-q", "-b", "main")
-    git("config", "core.longpaths", "true")
-    git("config", "core.autocrlf", "false")
+    def git(*args, capture=False):
+        r = subprocess.run(["git", *args], cwd=repo, check=True, capture_output=True, text=True)
+        return r.stdout.strip() if capture else None
+    if not keep_history:
+        git("init", "-q", "-b", "main")
+        git("config", "core.longpaths", "true")
+        git("config", "core.autocrlf", "false")
     git("add", "-A")
-    git("-c", "user.name=ip-motion-characters", "-c", "user.email=noreply@example.com", "commit", "-qm", "Initial release")
+    email = a.email or f"{a.author}@users.noreply.github.com"
+    if git("status", "--porcelain", capture=True):
+        git("-c", f"user.name={a.author}", "-c", f"user.email={email}", "commit", "-qm", a.message)
+        made = "new commit"
+    else:
+        made = "no changes"
+    count = git("rev-list", "--count", "HEAD", capture=True)
 
     zpath = os.path.join(dist, f"{NAME}.zip")
     with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
@@ -176,7 +209,7 @@ def main():
                 full = os.path.join(base, f)
                 z.write(full, os.path.join(NAME, os.path.relpath(full, repo)))
     size = sum(os.path.getsize(os.path.join(b, f)) for b, ds, fs in os.walk(repo) if ".git" not in b for f in fs)
-    print(f"dist/{NAME}/  ({size / 1e6:.1f} MB, git: 1 commit on main)")
+    print(f"dist/{NAME}/  ({size / 1e6:.1f} MB, {made}; {count} commit(s) on main)")
     print(f"dist/{NAME}.zip  ({os.path.getsize(zpath) / 1e6:.1f} MB)")
 
 

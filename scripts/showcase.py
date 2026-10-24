@@ -124,16 +124,26 @@ def grid_video(picks, cols, cell, size, seconds, fps, out_args, label_font=None,
 def build_docs(chars):
     docs = os.path.join(ROOT, "docs")
     os.makedirs(docs, exist_ok=True)
-    # lineup
-    cell = 300
-    im = Image.new("RGB", (cell * len(chars), cell + 60), BG)
+    # lineup: 5 per row (one row per series)
+    # cells are 300×380 and anchored at the feet, so tall characters (giraffe horns, lion mane) keep their heads
+    cell, ch, per = 300, 380, 5
+    rows = (len(chars) + per - 1) // per
+    im = Image.new("RGB", (cell * min(per, len(chars)), rows * (ch + 60)), BG)
     d = ImageDraw.Draw(im)
     for i, (cid, name) in enumerate(chars):
-        c = crop_char(frame(cid, "idle")).resize((cell, int(cell * 450 / 380)))
-        c = c.crop((0, 0, cell, cell))
-        im.paste(c, (i * cell, 0), c)
-        text_center(d, i * cell + cell / 2, cell + 10, name, font(30, "bold"))
+        x, y = (i % per) * cell, (i // per) * (ch + 60)
+        c = frame(cid, "idle").crop((90, 0, 510, 590)).resize((cell, int(cell * 590 / 420)))
+        c = c.crop((0, c.height - ch - 10, cell, c.height - 10))
+        im.paste(c, (x, y), c)
+        text_center(d, x + cell / 2, y + ch + 10, name, font(30, "bold"))
     im.save(os.path.join(docs, "lineup.png"))
+    # zoo grid, when the zoo series is present
+    ids = {c for c, _ in chars}
+    if {"panda", "monkey", "giraffe", "lion", "penguin"} <= ids:
+        zoo = [("panda", "dance", None), ("monkey", "cheer", None), ("lion", "hero", None),
+               ("giraffe", "moonwalk", None), ("penguin", "walk", None), ("panda", "faint", None)]
+        grid_video(zoo, 3, (240, 240), (720, 480), 6, 12,
+                   ["-filter_complex", "split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4", "docs/zoo.gif"])
     # 3×2 grid gif of dances / poses
     picks = [("young", "dance", None), ("scammer", "sneaky", None), ("teller", "robot", None),
              ("worker", "yawn", None), ("elder", "faint", None), ("young", "heart", None)]

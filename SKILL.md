@@ -9,7 +9,7 @@ description: 制作「会动的 IP 角色」系列（灵动、Q 弹、有冲击�
 
 - **本 skill 是模板，不要直接在 skill 目录里改。** 先复制成工作目录：`cp -r <本 skill 目录> ./<项目名>`，之后所有命令在工作目录里跑。
 - 环境：Python 3.9+（`pip install -r requirements.txt`）、Google Chrome 或 Edge（无头渲染）、ffmpeg（在 PATH 上）、git（regress 用）。
-- 自带 5 个示例角色（反诈系列：年轻人、骗子、老年人、上班族、银行职员），做新系列时可以照着改，也可以从 `characters/index.js` 里移除。
+- 自带两套示例：反诈系列（年轻人、骗子、老年人、上班族、银行职员）和动物园系列（熊猫、猴子、长颈鹿、狮子、企鹅，由 `characters/_zoo_build.py` 生成）。做新系列时照着改，用不到的从 `characters/index.js` 移除。
 
 一个角色 = `characters/<id>/`（SVG 部件 + 档案 + 弹簧）。动作不按角色手写，而是
 `engine/motions.js` 里的**参数化模板 × 角色运动性格档案**：同一个"跳"在每个角色身上节奏不同，但同属一家。
@@ -71,6 +71,7 @@ render.html                  无头渲染页
 scripts/render.py            Chrome 无头逐帧渲染 → mp4 / gif / sheet / reel
 scripts/review.py            生成 out/index.html 总览
 scripts/silhouette.py        剪影对比 + 节奏指标
+scripts/keyframes.py         关键帧对照表：多角色 × 多动作（新系列 QA 用）
 scripts/regress.py           带阈值的视觉回归（对比上一次提交）
 scripts/lint.py              渲染前的硬规则数值检查（engine/lint.js）
 scripts/cues2js.py           Rhubarb JSON → cues.js

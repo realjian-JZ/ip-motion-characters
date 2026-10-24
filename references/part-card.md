@@ -56,6 +56,14 @@ head > hair_tuft, eyes > pupils, brow_l, brow_r, mouth(data-group)
 | `swapAlias` | 用模板里的口型名，显示角色自己的形状 | 骗子 smile → smirk |
 | `extras` | 角色专属动作，进 preview / render | 骗子 sneaky |
 | `hair` | 惊吓时竖起的头发部件（默认 `hair_tuft`） | 骗子 `hair_lock` |
+| `handX` | 手中心的 x（默认 84）：道具、V 字手指注入的位置 | 企鹅 98（鳍尖）、长颈鹿 74 |
+| `starsY` | 晕眩星星环的高度（默认 −400） | 长颈鹿 −520（头在脖子上） |
+| `height` | 身高（默认 372）：晕倒时按身高往右多挪，头不出画面 | 长颈鹿 480 |
+| `chinReach: false` | 手够不到下巴：think 改为手搭胸前 | 长颈鹿 |
+| `noFingers` | 没有手指（鳍、蹄）：不画 V 字手指，比耶变成举手在脸旁 | 企鹅、长颈鹿 |
+
+动物角色可以加任意额外部件（`ear_l/r`、`tail`、`mane`、`horns`……），挂上弹簧即可；
+必须保留的仍是上面那套人形部件名，所有动作模板才能通用。动物园系列由 `characters/_zoo_build.py` 从共享部件生成。
 
 ## 引擎注入的共享元素（不用画进角色 SVG）
 
